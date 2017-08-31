@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<style>
+*{ margin:0; padding:0;}
+body{ background:black;}
+#c1{ background:white; margin:0px auto;}
+</style>
+<script>
+window.onload = function(){
+	var oC=document.getElementById('c1');
+	var oGc=oC.getContext('2d');
+	oGc.beginPath();
+	oGc.arc(300,200,200,-90*Math.PI/180,180*Math.PI/180,false);
+	oGc.stroke();
+	oGc.arc(250,200,150,-180*Math.PI/180,0*Math.PI/180,false);
+	oGc.stroke();
+	oGc.closePath();
+		var j=0;
+	setInterval(function(){
+		oGc.clearRect(0,0,oC.width,oC.height);
+			
+			oGc.beginPath();
+			oGc.arc(300,200,200,-90*Math.PI/180,180*Math.PI/180,false);
+			oGc.stroke();
+			oGc.arc(250,200,150,-180*Math.PI/180,0*Math.PI/180,false);
+			oGc.stroke();
+			oGc.closePath();
+			
+
+	//		console.log(bull.length);
+			for(var i=0;i<bull.length;i++){
+			
+			oGc.beginPath();
+			oGc.arc(bull[i].x,bull[i].y,20,0*Math.PI/180,360*Math.PI/180,false);
+			//console.log(bull[i]);
+			oGc.fill();
+		}
+		
+		},1000/60);
+/*setInterval(function(){
+		bull.push({x:300,
+		y:0,
+		r:200,
+		radian:0,
+		startX:300,
+		startY:0});
+	},350);*/
+	setInterval(function(){
+		bull.push(bull[0]);//许多小球计算出的坐标一样，但是速度怎么也越来越快呢，是从一个位置迅速跳到另一个文字吗
+	},350);
+
+	setInterval(function(){
+	for(var i=0;i<bull.length;i++){//不断改变bull[0]的坐标,根据bull.push执行时间的长度，添加一个bull的子元素时，之前的坐标已经计算过几次了和刚添加的元素坐标不同，所有位置不同
+				console.log(bull[i].x);
+				bull[i].radian++;
+				
+				bull[i].x = Math.sin(bull[i].radian*Math.PI/180) * bull[i].r + bull[i].startX;
+				bull[i].y = bull[i].r - Math.cos(bull[i].radian*Math.PI/180) * bull[i].r + bull[i].startY;
+			//	console.log(bull[i]);
+			}
+			
+	},30);
+	
+		var bull=[];
+	bull[0]={
+		x:300,
+		y:0,
+		r:200,
+		radian:0,
+		startX:300,
+		startY:0
+		}
+};
+</script>
+</head>
+
+<body>
+
+	<canvas id="c1" width="600" height="600"></canvas>
+</body>
+</html>

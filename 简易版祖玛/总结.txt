@@ -1,0 +1,29 @@
+1.数据多的话，中间图标发射出的球就挤在一起没有形状了，当然，这个游戏没有达到那么多数据时就结束了
+2、for(var i=0;i<bullet.length;i++)
+			{
+				for(var j=0;j<bull.length;j++)
+				{
+					if(pzBall(bullet[i].x,bullet[i].y,20,bull[j].x,bull[j].y,20))
+					{
+						//bull.splice(bull[j],1);//bull[j]是指最后一个吗，效果是最后一个被删除，splice方法用错
+						//bullet.splice(bullet[i],1);//bull[i]是指最后一个
+						bull.splice(j,1);
+						bullet.splice(i,1);
+						break;//首先没有添加break,再循环就有问题了，其次是判断条件写错
+					}
+				}
+			}
+
+   代码运行结果，不正确，首先把逻辑检查一遍，再检查函数使用是否正确
+
+3.这个代码中开了很多定时器，生成球的数据，改变球的坐标，画出球，分别用了三个定时器，因为生成球的数据时间不同，所以球与球之间的坐标不同，出现在画布的时间和位置不同，就有了许多球不断出现，往前走的效果，
+  要是用一个定时器，就看到一个球了，因为这些球坐标一样，出现位置和时间一样
+
+4、if(bull[i].radian==270+180)
+				{
+					alert('游戏结束');//alert('游戏结束');里面文字没加双引号，竟然报错（没看到错误信息，被调试信息覆盖了），一直没有结束，然后以为自己判断逻辑出错了呢
+					window.location.reload();
+				}
+5、window.location.reload(); 
+  reload 方法，该方法强迫浏览器刷新当前页面。
+语法：location.reload([bForceGet])参数： bForceGet， 可选参数， 默认为 false，从客户端缓存里取当前页。 true, 则以GET 方式，从服务端取最新的页面, 相当于客户端点击 F5("刷新")

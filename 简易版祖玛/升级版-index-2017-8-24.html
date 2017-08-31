@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<style>
+*{ margin:0; padding:0;}
+body{ background:black;}
+#c1{ background:white; margin:0px auto;}
+</style>
+<script>
+window.onload = function(){
+	var oC=document.getElementById('c1');
+	var oGc=oC.getContext('2d');
+//	oGc.save();
+	oGc.beginPath();
+	oGc.arc(300,200,200,-90*Math.PI/180,180*Math.PI/180,false);
+	oGc.stroke();
+	oGc.arc(250,200,150,-180*Math.PI/180,0*Math.PI/180,false);
+	oGc.stroke();
+	oGc.closePath();
+	
+	
+	
+	var oImg = new Image();
+	oImg.src='person.png';
+	oImg.onload=function()
+	{
+		//oGc.drawImage(this,300,300);
+		setInterval(function(){
+		oGc.clearRect(0,0,oC.width,oC.height);
+			
+			oGc.beginPath();
+			oGc.arc(300,200,200,-90*Math.PI/180,180*Math.PI/180,false);
+			oGc.stroke();
+			oGc.arc(250,200,150,-180*Math.PI/180,0*Math.PI/180,false);
+			oGc.stroke();
+			
+			oGc.beginPath();
+			oGc.arc(400,200,20,0,360*Math.PI/180,false);
+			oGc.stroke();
+			
+			for(var i=0;i<bull.length;i++){//为什么用循环，因为有很多球，因为加入时间不一样，计算出的坐标不一样，看起来效果就像一个个出来的
+			oGc.save();
+			oGc.beginPath();
+				var arrColr=['rgba(255,0,0,1)','rgba(0,255,0,1)','rgba(0,0,255,1)','rgba(0,0,0,1)'];
+			
+			oGc.fillStyle=arrColr[Math.floor(Math.random()*arrColr.length)];
+		//	oGc.moveTo(bull[i].x,bull[i].y);
+			oGc.arc(bull[i].x,bull[i].y,20,0*Math.PI/180,360*Math.PI/180,false);
+		//	console.log(bull[i]);
+			oGc.fill();
+		//	oGc.restore();
+			}
+			
+			for(var i=0;i<bullet.length;i++){//为什么用循环，因为有很多球，因为加入时间不一样，计算出的坐标不一样，看起来效果就像一个个出来的
+		//	console.log(bullet);
+			oGc.save();
+				var arrColr=['rgba(255,0,0,1)','rgba(0,255,0,1)','rgba(0,0,255,1)','rgba(0,0,0,1)'];
+			
+			oGc.fillStyle=arrColr[Math.floor(Math.random()*arrColr.length)];
+			
+			//console.log('rgba('+parseInt(num)+','+parseInt(num)+','+parseInt(num)+',1)');
+			oGc.beginPath();
+			oGc.moveTo(bullet[i].x,bullet[i].y);
+			oGc.arc(bullet[i].x,bullet[i].y,20,0*Math.PI/180,360*Math.PI/180,false);
+			oGc.fill();
+			oGc.restore();
+			
+		    }
+			oGc.save();
+			oGc.translate(300,200);
+			oGc.rotate(iRotate);
+			oGc.translate(-40,-40);//旋转后，拉回中心点
+			oGc.drawImage(oImg,0,0);//把图片放在画布上
+			oGc.restore();
+			
+			oGc.save();
+			var str='简易祖玛';
+			oGc.font='60px impact';
+			oGc.textBaseline='top';
+			oGc.fillStyle='red';
+			oGc.shadowOffsetX=10;
+			oGc.shadowOffsetY=10;
+			oGc.shadowColor='green';
+			oGc.shadowBlur=5;
+			var w=oGc.measureText(str).width;
+			var h=60;
+			oGc.fillText(str,(oC.width-w)/2,(oC.height-h)/2);
+			oGc.restore();
+				
+		},1000/60);
+
+
+
+		
+		//改变坐标
+		var num=0;
+		setInterval(function(){
+			for(var i=0;i<bull.length;i++)
+			{//不断改变bull[0]的坐标
+				bull[i].radian++;
+				num++;
+			//	console.log(bull[bull.length-1].radian);
+				//console.log(bull[i].radian);
+				if(bull[i].radian==270)
+				{
+					//bull[i].x=250;
+					//bull[i].y=200;
+					bull[i].r=150;
+					bull[i].startX=250;
+					bull[i].startY=50;
+						//bull[i].x = Math.sin(bull[i].radian*Math.PI/180) * 150 + bull[i].startX;
+						//bull[i].y = bull[i].r - Math.cos(bull[i].radian*Math.PI/180) * bull[i].r + bull[i].startY;
+
+				}
+			
+				if(bull[i].radian==270+180)
+				{
+					//alert('游戏结束');
+					window.location.reload();//该方法强迫浏览器刷新当前页面。
+				}
+				bull[i].x = Math.sin(bull[i].radian*Math.PI/180) * bull[i].r + bull[i].startX;
+				bull[i].y = bull[i].r - Math.cos(bull[i].radian*Math.PI/180) * bull[i].r + bull[i].startY;
+			}
+			for(var i=0;i<bullet.length;i++)
+			{//不断改变bull[0]的坐标
+				bullet[i].x = bullet[i].x  + bullet[i].sX;
+				bullet[i].y = bullet[i].y  + bullet[i].sY;
+				//console.log(bullet);
+				//console.log(bullet[i].x );
+				/*for(var j=0;j<bull.length;j++)
+				{
+					if(pzBall(bullet[i].x,bullet[i].y,20,bull[j].x,bull[j].y,20))
+					{
+						bull.splice(bull[j],1);
+						bullet.splice(bullet[i],1);
+						break;//首先没有添加break,再循环就有问题了，其次是判断条件写错
+					}
+				}*/
+			}
+			for(var i=0;i<bullet.length;i++)
+			{
+				for(var j=0;j<bull.length;j++)
+				{
+					if(pzBall(bullet[i].x,bullet[i].y,20,bull[j].x,bull[j].y,20))
+					{
+						//bull.splice(bull[j],1);
+						//bullet.splice(bullet[i],1);
+						bull.splice(j,1);
+						bullet.splice(i,1);
+						break;//首先没有添加break,再循环就有问题了，其次是判断条件写错
+					}
+				}
+			}
+		},30);
+	
+		
+	}
+	
+	var bull=[];
+	/*bull[0]={
+		x:300,
+		y:0,
+		r:200,
+		radian:0,
+		startX:300,
+		startY:0
+		}*/
+	//添加球
+	setInterval(function(){
+		bull.push({x:300,
+		y:0,
+		r:200,
+		radian:0,
+		startX:300,
+		startY:0});
+	},350);
+	
+	var iRotate=0;
+	oC.onmousemove=function(ev)
+	{
+		var ev=ev||window.event;
+		var x=ev.clientX-oC.offsetLeft;
+		var y=ev.clientY-oC.offsetTop;
+		var a=x-300;
+		var b=y-200;
+		var c=Math.sqrt(a*a+b*b);
+	//.alert(a);
+		if(a>0&&b<0)
+		{
+			iRotate=Math.asin(a/c);
+			//console.log(iRotate);
+		}
+		else if(a>0&&b>0)
+		{
+			iRotate=Math.asin(b/c)+90*Math.PI/180;
+		//	console.log(iRotate);
+		}
+		else if(a<0&&b<0)
+		{
+			iRotate=Math.asin(a/c);
+			//console.log(iRotate);
+		}
+		else if(a<0&&b<0)
+		{
+			iRotate=-Math.asin(b/c)-90*Math.PI/180;
+			//console.log(iRotate);
+		}
+	}
+	
+	var bullet=[];
+	oC.onmousedown=function(ev)
+	{
+		var ev=ev||window.event;
+		var x=ev.clientX-oC.offsetLeft;
+		var y=ev.clientY-oC.offsetTop;
+		var a=x-300;
+		var b=y-200;
+		var c=Math.sqrt(a*a+b*b);
+		var speed=5;
+		var sX=speed*a/c;//找出这个方向
+		var sY=speed*b/c;
+		/*console.log('x '+x);
+		console.log('y '+y);
+		console.log('a '+a);
+		console.log('b '+b);
+		console.log('c '+c);
+		console.log('sX '+sX);
+		console.log('sY '+sY);*/
+		bullet.push({
+			x:300,
+			y:200,
+			r:20,
+			sX:speed*a/c,
+			sY:speed*b/c
+			});
+			//console.log(bullet[1]);
+		
+	}
+	
+	function pzBall(x1,y1,r1,x2,y2,r2)
+	{
+		var len = Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));//代码中的输出信息会影响效率，导致吐出的球挤在一起
+		if(len <(r1+r2))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+};
+</script>
+</head>
+
+<body>
+
+	<canvas id="c1" width="600" height="600"></canvas>
+</body>
+</html>
