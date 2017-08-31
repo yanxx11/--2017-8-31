@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>无标题文档</title>
+<style>
+    body,div,span,p{margin:0;padding:0;}
+	#wrap{width:300px;height:400px;border:1px solid #000;margin-top:30px;margin-left:380px;overflow:hidden;position:relative;}
+	#bg{width:600px;height:400px;padding-top:20px;background:#0C0;position:relative;left:0;}/*因为一开始是left:0;没有写，导致transition:1s;一直没有效果*/
+	#bg #hint{width:300px;height:100px;line-height:22px;padding-top:10px;background:rgba(0,0,0,0.5);color:#ffffff;}
+	#bg i{font-style:normal;color:red;display:block;}
+	#leftdiv{width:80px;height:200px;background:pink;position:absolute;left:0;bottom:0;}
+	#middlediv{width:80px;height:200px;background:pink;position:absolute;left:200px;bottom:0}
+	#righttdiv{width:80px;height:200px;background:pink;position:absolute;left:350px;bottom:0}
+	#hero{width:40px;height:40px;background:black;position:absolute;left:0;bottom:200px;}
+	#stick{width:0px;height:6px;background:red;position:absolute;left:40px;bottom:200px;
+		transform:rotate(-90deg);-webkit-transfrom:rotate(-90deg); -ms-transform::rotate(-90deg);
+		-o-transfrom:rotate(-90deg); -moz-transform::rotate(-90deg);
+		 transform-origin:0 6px;-webkit-transfrom-origin:0 6px; -ms-transform-origin:0 6px;
+		-o-transfrom-origin:0 6px; -moz-transform-origin:0 6px;
+	}
+	#gameover{width:300px;height:400px;background:#FC6;position:relative;left:0;display:none;position:absolute;left:0;top:0;}
+	#gameover strong{text-align:center;width:300px;height:100px;line-height:100px;font-size:30px;display:block;}
+	#gameover p{text-align:center;width:300px;height:100px;line-height:100px;font-size:20px;}
+	#gameover #resetStart{display:block;margin-top:0px;margin-left:120px;text-align:center;font-size:20px;}
+</style>
+</head>
+
+<body>
+<div id="wrap">
+    <div id="bg">
+        <p id='hint'>按下鼠标使模板长度增长，松开鼠标使模板停止增长，并放倒。<i>温馨提示：模板太长或者太短都不行哦</i></p>
+        <div id="leftdiv"></div>
+        <div id="middlediv"></div>
+        <div id="righttdiv"></div>
+        <div id="hero"></div>
+        <div id="stick"> </div>
+    </div>
+     <div id="gameover">
+     		 <strong>游戏结束！</strong>
+       		 <p>得分：<span id="score"></span></p>
+             <input type='button' id="resetStart" value='重玩'> 
+    	</div>
+</div>
+</body>
+</html>
+<script>
+	window.onload=function()
+	{
+		var Event={
+	addEvent:function(element,ev,fn){
+		if(element.addEventListener)
+		{
+			element.addEventListener(ev,fn,false);
+		}
+		else if(element.attachEvent)
+		{
+			element.attachEvent(ev,fn);
+		}
+		else
+		{
+			element['on'+ev]=fn;
+		}
+		
+	},
+	removeEvent:function(element,ev,fn)
+	{
+		if(element.removeEventListener)
+		{
+			element.removeEventListener(ev,fn,false);
+		}
+		else if(element.detachEvent)
+		{
+			element.detachEvent(ev,fn);
+		}
+		else
+		{
+			element['on'+ev]=null;
+		}
+	}
+	};
+
+		var oWrap=document.getElementById("wrap");
+		var oBg=document.getElementById("bg");
+		var oLeftdiv=document.getElementById("leftdiv");
+		var oMiddlediv=document.getElementById("middlediv");
+		var oRightdiv=document.getElementById("righttdiv");
+		var oHero=document.getElementById("hero");
+		var oStick=document.getElementById("stick");
+		var oScore=document.getElementById("score");
+		var oGameover=document.getElementById("gameover");
+		var oResetStart=document.getElementById("resetStart");
+		var oHint=document.getElementById("hint");
+		var timer=null;
+		var num=0;
+		var middleLeft=0;
+		var step=0;
+		var next=null;
+		var isGo=false;
+		var isPlay=false;//动画是否正在播放
+		var scoreNum=0;
+		oMiddlediv.style.left=createNum(80,220)+'px';
+		oMiddlediv.style.width=createNum(40,80)+'px';
+		var fall=false;
+		oResetStart.onclick=function(ev)
+		{
+			console.log(isPlay);
+			scoreNum=0;
+			oScore.innerHTML=0;
+			oGameover.style.display='none';
+			//oStick.style.vendorPrefix='none';
+			oStick.style[getVendorPrefix('transition')]='none';
+					/*//alert(getVendorPrefix('transition'));
+			oStick.style.transition='none';
+			oStick.style.webkitTransition='none';
+			oStick.style.mozTransition='none';
+			oStick.style.oTransition='none';
+			oStick.style.msTransition='none';*/
+			oStick.style.width=0+'px';
+			oStick.style[getVendorPrefix('transform')]='rotate(-90deg)';
+			/*//oStick.style.transform='rotate(-90deg)';
+			oStick.style.transform='rotate(-90deg)';
+			oStick.style.webkitTransform='rotate(-90deg)';
+			oStick.style.mozTransform='rotate(-90deg)';
+			oStick.style.oTransform='rotate(-90deg)';
+			oStick.style.msTransform='rotate(-90deg)';*/
+		
+			oHero.style[getVendorPrefix('transition')]='none';
+		   //oHero.style.transition='none';
+		   oHero.style.left=0+'px';
+		   oHero.style.bottom='200px';
+		   oHint.style.display='block';
+		   var ev=ev||window.event;
+		   if(ev&&ev.stopPropagation)
+		   {
+			   ev.stopPropagation();
+		   }
+		   else
+		   {
+			   ev.cancelBubble=true;//ie
+		   }
+		   
+				
+		}
+		oBg.onmousedown=function()
+		{  /// num=0;
+		
+			if(isPlay)
+			{
+				return;
+			}
+			 oHint.style.display='none';
+			clearInterval(timer);
+				timer=setInterval(function(){
+					num++;
+					oStick.style.width=num+'px';
+					},10);
+				
+		}
+		
+		oBg.onmouseup=function()
+		{
+			if(isPlay)
+			{
+				return;
+			}
+			isPlay=true;
+			clearInterval(timer);
+			 middleLeft=oMiddlediv.offsetLeft;
+			 oStick.style[getVendorPrefix('transition')]='1s';
+		//	oStick.style.transition='1s';//渐变时会变粗，然后变小,变快一点就看不到这个过程了
+			//oStick.style.transform='rotate(0deg)';
+			oStick.style[getVendorPrefix('transform')]='rotate(0deg)';
+			 next=createNext();
+			// console.log(next);
+			oRightdiv.style.left=next[0]+'px';
+			oRightdiv.style.width=next[1]+'px';
+
+		//	console.log('num '+num);
+		//	console.log('middleLeft-oStick.offsetLeft '+(parseInt(middleLeft)-parseInt(oStick.offsetLeft)));
+		//	console.log('middleLeft+oMiddlediv.offsetWidth '+(parseInt(middleLeft)+parseInt(oMiddlediv.offsetWidth)-parseInt(oStick.offsetLeft)));
+
+			if(num<(parseInt(middleLeft)-parseInt(oStick.offsetLeft)) || num > (parseInt(middleLeft)+parseInt(oMiddlediv.offsetWidth)-parseInt(oStick.offsetLeft)))
+			{
+				isGo=false;
+			}
+			else
+			{
+				isGo=true;
+				scoreNum++;
+			}
+			
+		}
+
+		Event.addEvent(oStick,"transitionend",function(ev){
+		//oStick.addEventListener("transitionend",function(ev){
+	         if(isGo)
+			 {
+				 console.log('isGo'+isGo);
+				 oHero.style.transition = "1s";
+	    		oHero.style.left = middlediv.offsetLeft + "px";
+				fall=false;
+				
+			 }
+			else
+			{
+				console.log('game over');
+				
+			 //oHero.style.transition = "1s";
+			oHero.style[getVendorPrefix('transition')]='1s';
+			  oHero.style.left=oStick.offsetLeft+oStick.offsetWidth+'px';
+			//  console.log(oHero.offsetWidth);
+			// console.log(oStick.offsetLeft+oStick.offsetWidth);
+			
+				
+				fall=true;
+				
+			}
+	    	  var ev=window.event||ev;//如果这里不阻止冒泡，那么会直接执行父级oBg.addEventListener('transitionend'的事件，游戏结束
+			  if(ev&&ev.stopProgation)
+			  {
+				  ev.stopPropagation();
+			  }
+			  else
+			  {
+				  ev.cancelBubble=true;
+			  }
+			  
+	    });
+		Event.addEvent(oHero,"transitionend",function(ev){
+		//oHero.addEventListener('transitionend',function(ev){
+			if(fall==false)
+			{
+				//oBg.style.transition = "1s";
+				oBg.style[getVendorPrefix('transition')]='1s';
+				oBg.style.left = -middlediv.offsetLeft + "px";
+				var ev=window.event||ev;//如果fall=true执行阻止冒泡，那么无法显示游戏结束界面
+				  if(ev&&ev.stopProgation)//这里不阻止冒泡的话，那么父级oBg.addEventListener('transitionend',会执行两次
+				  {
+					  ev.stopPropagation();
+				  }
+				  else
+				  {
+					  ev.cancelBubble=true;
+				  }
+				step=1;
+			}
+			else
+			{
+				//oHero.style.transition = "0.5s";
+				oHero.style[getVendorPrefix('transition')]='0.5s';
+				if(num<(parseInt(middleLeft)-parseInt(oStick.offsetLeft)))
+				{
+				 oHero.style.left = middlediv.offsetLeft-oHero.offsetWidth + "px";
+			     oHero.style.bottom =0 + "px";
+				}
+				else
+				{
+					oHero.style.bottom =0 + "px";
+				}
+			
+			}
+			
+		});
+		
+		Event.addEvent(oBg,"transitionend",function()
+		//oBg.addEventListener('transitionend',function()
+		{
+			if(step==1)
+			{
+				//alert(111);
+			//	this.style.transition='none';
+				this.style[getVendorPrefix('transition')]='none';
+				this.style.left=0+'px';
+				//oHero.style.transition = "none";
+				oHero.style[getVendorPrefix('transition')]='none';
+				oHero.style.left = 0;
+				oLeftdiv.style.width=oMiddlediv.style.width;
+				
+				oMiddlediv.style.left=oRightdiv.offsetLeft-oMiddlediv.offsetLeft+'px';
+				oMiddlediv.style.width=oRightdiv.offsetWidth+'px';
+				//oStick.style.transition='none';
+				oStick.style[getVendorPrefix('transition')]='none';
+				oStick.style.width=0;
+				oStick.style.transform='rotate(-90deg)';
+				num=0;
+				oScore.innerHTML=scoreNum;
+				step=0;
+				isPlay=false;
+			}
+			else
+			{
+				setTimeout(function(){
+					 oScore.innerHTML=scoreNum;
+				oGameover.style.display='block';
+				 isPlay=false;
+			 num=0;
+					},1000);//延迟1s,否则没看到hero掉下去就结束了
+				 
+			}
+			
+			
+			
+		});
+			
+		function createNext()
+		{
+			var left=createNum(300,220+middlediv.offsetLeft);
+			var width=createNum(40,80);
+			return [left,width];
+		}
+		
+		function createNum(start,end)
+		{
+			return parseInt(Math.random()*(end-start)+start);
+		}
+		
+
+		function getVendorPrefix(attr) {
+			var body, i, style, transition, vendor;
+			body = document.body || document.documentElement;
+			style = body.style;
+			attr = attr;
+			vendor = ["Moz", "Webkit", "Khtml", "O", "ms"];
+			attr = attr.charAt(0).toUpperCase() + attr.substr(1);
+			i = 0;
+			while (i < vendor.length) {
+				if (typeof style[vendor[i] + attr] === "string") {
+				  return vendor[i]+attr;
+				}
+				i++;
+			}
+			return false;
+		}
+		alert(getVendorPrefix('transform'));
+}
+</script>
